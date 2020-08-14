@@ -22,10 +22,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// テストjson file	全権取得
-	// f.Println(json)
-
-	// テスト一部検索
+	// No:Nameの形式で出力
 	for _, p := range poke {
 		f.Printf("%d : %s\n", p.No, p.Name)
 	}
