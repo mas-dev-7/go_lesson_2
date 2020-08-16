@@ -1,3 +1,5 @@
+//http://localhost:3000
+
 package main
 
 import (
@@ -6,10 +8,11 @@ import (
 	f "fmt"
 	io "io/ioutil"
 	"log"
+	"net/http"
 	_ "os"
 )
 
-func main() {
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	// jsonfile読み取り
 	read_file, err := io.ReadFile("api/data.json")
 	if err != nil {
@@ -24,7 +27,16 @@ func main() {
 
 	// No:Nameの形式で出力
 	for _, p := range poke {
-		f.Printf("%d : %s\n", p.No, p.Name)
+		f.Fprintf(w, "%d : %s\n", p.No, p.Name)
 	}
+
+}
+
+func main() {
+	// ルーティング、呼び出すハンドラ指定？？
+	http.HandleFunc("/", IndexHandler)
+
+	// ポート指定？？
+	http.ListenAndServe(":3000", nil)
 
 }
