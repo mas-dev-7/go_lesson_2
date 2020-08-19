@@ -5,8 +5,9 @@ pokemon
 go run main.go
 ```
 
-after
+別のターミナル開いて
 
 ```
-http://localhost:3000
+curl -X POST http://localhost:3000/create -d '{"id":『ポケモンの図鑑ナンバー』}'
 ```
+ポケモンの図鑑ナンバーのところを1にして実行すると、main.goと同じ階層に1.txtが作成され、中身はフシギダネ
