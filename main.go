@@ -65,33 +65,37 @@ func CreateTextHandler(w http.ResponseWriter, r *http.Request) {
 	var stpoke []st.Pokemon
 	// JSONから構造体へ変換
 	if err := js.Unmarshal(read_file, &stpoke); err != nil {
-		f.Println(err)
+		f.Fprintf(w, "idの値が正しくなさそう")
 		return
 	}
 
 	// リクエストボディのIDに該当するナンバーのデータをテキストファイルに書き出し
 	// ファイル名：ナンバー.json
+	var hit bool
 	for _, p := range stpoke {
 		if p.No == postreq.ID {
-
-			filename := f.Sprintf("%d.json", p.No)
-
-			// ファイル作成
-			file, err := os.Create(filename)
-			if err != nil {
-				f.Println(err)
-				return
-			}
-			// 処理終了後ファイルクローズ
-			defer file.Close()
-
+			hit = true
 			// 構造体→json変換
 			jsp, err := js.Marshal(p)
 			if err != nil {
 				f.Println(err)
 				return
 			}
+			// ファイル作成
+			filename := f.Sprintf("%d.json", postreq.ID)
+			file, err := os.Create(filename)
+			if err != nil {
+				f.Println(err)
+				return
+			}
 
+			// 処理終了後ファイルクローズ
+			defer func() {
+				err := file.Close()
+				if err != nil {
+					f.Fprintf(w, "Close error")
+				}
+			}()
 			// ファイル出力用整形処理
 			jspout := new(bytes.Buffer)
 			// スペース4つでインデント付ける
@@ -104,8 +108,17 @@ func CreateTextHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			break
+		} else {
+			hit = false
 		}
 	}
+
+	// リクエストボディのIDに該当するナンバーのデータがヒットしなかった時のエラー
+	if hit != true {
+		f.Fprintf(w, "そのidに該当するデータ無し")
+		return
+	}
+
 	// レスポンスとしてステータスコード201を送信
 	w.WriteHeader(http.StatusCreated)
 }
