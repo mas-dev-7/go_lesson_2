@@ -15,11 +15,6 @@ import (
 	"strconv"
 )
 
-// POSTのBody変換用
-type PostReq struct {
-	ID int `json:"id"`
-}
-
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	// jsonfile読み取り
 	read_file, err := io.ReadFile("api/data.json")
@@ -48,7 +43,7 @@ func CreateTextHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// リクエストボディをJSONに変換
-	var postreq PostReq
+	var postreq st.PostReq
 	decoder := js.NewDecoder(r.Body)
 	err := decoder.Decode(&postreq)
 	if err != nil {
@@ -170,14 +165,21 @@ func SingleGetTextHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	// ルーティング、ハンドラ指定
 	// ブラウザ出力
+	// port,_ := strconv.Atoi(os.Args[1])
+	// 環境変数のPORTを取得
+	var goenv st.Env
+	port := f.Sprintf(":%d",goenv.Port)
 	r := mux.NewRouter()
+	r.Host("0.0.0.0").Subrouter()
 	r.HandleFunc("/", IndexHandler)
 
 	r.HandleFunc("/create", CreateTextHandler).Methods("POST")
 	//	r.HandleFunc("/get", AllGetTextHandler).Methods("GET")
 	r.HandleFunc("/get/{id}", SingleGetTextHandler).Methods("GET")
 
-	// ポート指定(ポート番号は適当)
-	log.Fatal(http.ListenAndServe(":3000", r))
+	// ポート指定(ポート番号は引数で指定)
+	// log.Fatal(http.ListenAndServe(f.Sprintf(":%d", port),r))
+
+	log.Fatal(http.ListenAndServe(port, r))
 
 }

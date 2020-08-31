@@ -18,3 +18,13 @@ type Pokemon struct {
 		S int `json:"speed"`
 	} `json:"stats"`
 }
+
+// POSTのBody変換用
+type PostReq struct {
+	ID int `json:"id"`
+}
+
+// 環境変数取得
+type Env struct {
+	Port string `envconfig:"PORT" default:"80"` 
+}
